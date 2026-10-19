@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { validarStockCarrito, descontarStock } from "../data/productos";
 
 export default function Checkout({ carrito, setCarrito }) {
   const navigate = useNavigate();
@@ -34,10 +35,20 @@ export default function Checkout({ carrito, setCarrito }) {
       return;
     }
 
+    const sinStock = validarStockCarrito(carrito);
+      if (sinStock.length > 0) {
+        const detalle = sinStock.map((x) => `${x.nombre} (pediste ${x.solicitado}, quedan ${x.disponible})`).join("\n");
+          alert("No hay stock suficiente para:\n" + detalle + "\n\nAjusta las cantidades en tu carrito.");
+          navigate("/carrito");
+      return;
+    }
+
+
     if (form.simularError) {
       setResultado("error");
     } else {
       const ordenId = "AT-" + Math.floor(100000 + Math.random() * 900000);
+      descontarStock(carrito); // solo se descuenta cuando el pago es exitoso
       setNroOrden(ordenId);
       setResultado("exito");
       setCarrito([]);

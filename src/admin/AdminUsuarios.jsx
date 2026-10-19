@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { obtenerUsuarios, eliminarUsuario as borrarUsuario } from "../data/usuarios";
 
 export default function AdminUsuarios() {
   const [sesion, setSesion] = useState(null);
@@ -14,18 +15,17 @@ export default function AdminUsuarios() {
     }
     setSesion(usuarioActivo);
 
-    const guardados = JSON.parse(localStorage.getItem("usuarios")) || [];
-    setUsuarios(guardados);
+    setUsuarios(obtenerUsuarios());
   }, [navigate]);
 
-  const eliminarUsuario = (index) => {
+  const eliminarUsuario = (run) => {
     if (sesion?.tipoUsuario !== "Administrador") {
       alert("Solo un Administrador puede eliminar usuarios.");
       return;
     }
-    const actualizados = usuarios.filter((_, i) => i !== index);
-    setUsuarios(actualizados);
-    localStorage.setItem("usuarios", JSON.stringify(actualizados));
+    if (!window.confirm("¿Eliminar este usuario?")) return;
+    borrarUsuario(run);
+    setUsuarios(obtenerUsuarios());
   };
 
   if (!sesion) return null;
@@ -44,6 +44,11 @@ export default function AdminUsuarios() {
 
       <main className="admin-content">
         <h1>Usuarios</h1>
+        {sesion.tipoUsuario === "Administrador" && (
+          <p>
+            <Link to="/admin/usuarios/nuevo" className="btn btn-primary mb-3">+ Nuevo usuario</Link>
+          </p>
+        )}
         <table className="admin-table">
           <thead>
             <tr>
@@ -58,15 +63,16 @@ export default function AdminUsuarios() {
             {usuarios.length === 0 ? (
               <tr><td colSpan="5">No hay usuarios registrados.</td></tr>
             ) : (
-              usuarios.map((usu, idx) => (
-                <tr key={idx}>
+              usuarios.map((usu) => (
+                <tr key={usu.run}>
                   <td>{usu.run}</td>
                   <td>{usu.nombre} {usu.apellidos}</td>
                   <td>{usu.correo}</td>
                   <td>{usu.tipoUsuario || "Cliente"}</td>
                   {sesion.tipoUsuario === "Administrador" && (
                     <td>
-                      <button className="btn btn-danger btn-small" onClick={() => eliminarUsuario(idx)}>Eliminar</button>
+                      <button className="btn btn-secondary btn-small me-2" onClick={() => navigate(`/admin/usuarios/editar/${usu.run}`)}>Editar</button>
+                      <button className="btn btn-danger btn-small" onClick={() => eliminarUsuario(usu.run)}>Eliminar</button>
                     </td>
                   )}
                 </tr>

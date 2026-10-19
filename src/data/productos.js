@@ -84,3 +84,27 @@ export function manejarErrorImagen(e) {
     img.src = srcActual.replace(/\/img\/(.+)$/, (_, nombre) => "/img/" + nombre.replace(/-/g, " "));
   }
 }
+
+// Valida que haya stock suficiente para cada ítem del carrito.
+// Devuelve un arreglo con los productos sin stock suficiente (vacío si todo está OK).
+export function validarStockCarrito(carrito) {
+  const productos = obtenerProductos();
+  return carrito
+    .map((item) => {
+      const prod = productos.find((p) => p.id === item.id);
+      const disponible = prod ? prod.stock : 0;
+      return { nombre: item.nombre, solicitado: item.cantidad, disponible };
+    })
+    .filter((x) => x.solicitado > x.disponible);
+}
+
+// Descuenta del stock las unidades compradas y persiste el resultado.
+export function descontarStock(carrito) {
+  const productos = obtenerProductos();
+  const actualizados = productos.map((p) => {
+    const item = carrito.find((i) => i.id === p.id);
+    return item ? { ...p, stock: Math.max(0, p.stock - item.cantidad) } : p;
+  });
+  guardarProductos(actualizados);
+  return actualizados;
+}

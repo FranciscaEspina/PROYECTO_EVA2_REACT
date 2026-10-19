@@ -24,6 +24,7 @@ import AdminHome from "./admin/AdminHome";
 import AdminProductos from "./admin/AdminProductos";
 import AdminUsuarios from "./admin/AdminUsuarios";
 import ProductoForm from "./admin/ProductoForm";
+import UsuarioForm from "./admin/UsuarioForm";
 
 export default function App() {
   const [carrito, setCarrito] = useState(() => {
@@ -59,6 +60,8 @@ export default function App() {
         <Route path="/admin/productos" element={<AdminProductos />} />
         <Route path="/admin/producto-form" element={<ProductoForm />} />
         <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+        <Route path="/admin/usuarios/nuevo" element={<UsuarioForm />} />
+        <Route path="/admin/usuarios/editar/:run" element={<UsuarioForm />} />
       </Routes>
       <Footer />
     </Router>
